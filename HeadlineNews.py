@@ -4,10 +4,12 @@ import sys
 import os
 import logging
 import json, urllib
+import socket
 from urllib import urlencode
 
 reload(sys)
 sys.setdefaultencoding('utf8')
+socket.setdefaulttimeout(3)
 
 WORDS = ["TOUTIAOXINWEN"]
 SLUG = "headline_news"
@@ -19,13 +21,15 @@ def request(appkey, mic, logger, m="GET"):
         "type" : "top",
     }
     params = urlencode(params)
-    if m == "GET":
-        f = urllib.urlopen("%s?%s" % (url, params))
-    else:
-        f = urllib.urlopen(url, params)
-
-    content = f.read()
-    res = json.loads(content)
+    try:
+    	if m == "GET":
+            f = urllib.urlopen("%s?%s" % (url, params))
+    	else:
+            f = urllib.urlopen(url, params)
+        content = f.read()
+        res = json.loads(content)
+    except Exception, e:
+        mic.say(u"新闻头条接口调用错误")
     if res:
         error_code = res["error_code"]
         if error_code == 0:
